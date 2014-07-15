@@ -15,24 +15,32 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 
-public class Dedup {
+public class NumberSort {
 
-	public static class Map extends Mapper<Object,Text,Text,Text>{
+	public static class Map extends Mapper<Object,Text,IntWritable,IntWritable>{
 		
-		public static Text line=new Text();//每行数据
+		public static IntWritable data=new IntWritable();//每行数据
 		
 		public void map(Object key,Text value,Context context) throws IOException, InterruptedException {
-			line=value;
-			context.write(line, new Text(""));
+			String line=value.toString();
+			data.set(Integer.valueOf(line));
+			context.write(data, new IntWritable(1));
 		}
 		
 		
 	}
 	
-	public static class Reduce extends Reducer<Text,Text,Text,Text>{
+	public static class Reduce extends Reducer<IntWritable,IntWritable,IntWritable,IntWritable>{
 		
-		public void reduce(Text key,Iterable<Text> values,Context context) throws IOException, InterruptedException{
-			context.write(key, new Text(""));
+		public static IntWritable index=new IntWritable(1);
+		
+		public void reduce(IntWritable key,Iterable<IntWritable> values,Context context) throws IOException, InterruptedException{
+			
+			for(IntWritable val : values){
+				context.write(index, key);
+				index.set(index.get()+1);
+			}
+			
 		}
 	}
 	
@@ -51,24 +59,21 @@ public class Dedup {
 			if(!fileSystem.exists(new Path("/inputs"))){
 				fileSystem.mkdirs(new Path("/inputs"));
 			}
-			if(fileSystem.exists(new Path("/outputs/dedup"))){
-				fileSystem.delete(new Path("/outputs/dedup"));
+			if(fileSystem.exists(new Path("/outputs/numbersort"))){
+				fileSystem.delete(new Path("/outputs/numbersort"));
 			}
-			if(!fileSystem.isFile(new Path("/inputs/file1.txt"))){
-				fileSystem.copyFromLocalFile(new Path("file/file1.txt"), new Path("/inputs/file1.txt"));
+			if(!fileSystem.isFile(new Path("/inputs/file3.txt"))){
+				fileSystem.copyFromLocalFile(new Path("file/file3.txt"), new Path("/inputs/file3.txt"));
 			}
-			if(!fileSystem.isFile(new Path("/inputs/file2.txt"))){
-				fileSystem.copyFromLocalFile(new Path("file/file2.txt"), new Path("/inputs/file2.txt"));
+			if(!fileSystem.isFile(new Path("/inputs/file4.txt"))){
+				fileSystem.copyFromLocalFile(new Path("file/file4.txt"), new Path("/inputs/file4.txt"));
 			}
 			//mapreduce计算			
 			Configuration conf=new Configuration();
-			//conf.set("fs.default.name", HDFS_PATH);
-			//conf.set("hadoop.job.user", "hadoop");
-			//conf.set("mapred.job.tracker", "192.168.1.98:9001");
-			//JobConf conf=new JobConf();
+
 			System.out.println("模式:"+conf.get("mapred.job.tracker"));
 			Job job=new Job(conf,"Data Deduplication");
-			job.setJarByClass(Dedup.class);
+			job.setJarByClass(NumberSort.class);
 			//设置map,combine和reduce处理类
 			job.setMapperClass(Map.class);
 			job.setCombinerClass(Reduce.class);
@@ -80,7 +85,7 @@ public class Dedup {
 			job.setOutputValueClass(Text.class);			
 			
 			Path inpath=new Path(HDFS_PATH+"/inputs");
-			Path outpath=new Path(HDFS_PATH+"/outputs/dedup");
+			Path outpath=new Path(HDFS_PATH+"/outputs/numbersort");
 			
 			FileInputFormat.addInputPath(job, inpath);
 			FileOutputFormat.setOutputPath(job, outpath);
