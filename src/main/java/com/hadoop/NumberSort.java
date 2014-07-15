@@ -36,10 +36,8 @@ public class NumberSort {
 		
 		public void reduce(IntWritable key,Iterable<IntWritable> values,Context context) throws IOException, InterruptedException{
 			
-			for(IntWritable val : values){
-				context.write(index, key);
-				index.set(index.get()+1);
-			}
+			context.write(index, key);
+			index=new IntWritable(index.get()+1);
 			
 		}
 	}
@@ -53,12 +51,12 @@ public class NumberSort {
 		
 		try {
 			//hdfs主机地址
-			String HDFS_PATH="hdfs://192.168.0.21:9000";
+			String HDFS_PATH="hdfs://192.168.1.98:9000";
 			//数据准备
 			FileSystem fileSystem=FileSystem.get(new URI(HDFS_PATH), new Configuration());
-			if(!fileSystem.exists(new Path("/inputs"))){
+			/*if(!fileSystem.exists(new Path("/inputs"))){
 				fileSystem.mkdirs(new Path("/inputs"));
-			}
+			}*/
 			if(fileSystem.exists(new Path("/outputs/numbersort"))){
 				fileSystem.delete(new Path("/outputs/numbersort"));
 			}
@@ -68,6 +66,9 @@ public class NumberSort {
 			if(!fileSystem.isFile(new Path("/inputs/file4.txt"))){
 				fileSystem.copyFromLocalFile(new Path("file/file4.txt"), new Path("/inputs/file4.txt"));
 			}
+			if(!fileSystem.isFile(new Path("/inputs/file5.txt"))){
+				fileSystem.copyFromLocalFile(new Path("file/file5.txt"), new Path("/inputs/file5.txt"));
+			}
 			//mapreduce计算			
 			Configuration conf=new Configuration();
 
@@ -76,13 +77,13 @@ public class NumberSort {
 			job.setJarByClass(NumberSort.class);
 			//设置map,combine和reduce处理类
 			job.setMapperClass(Map.class);
-			job.setCombinerClass(Reduce.class);
+			//job.setCombinerClass(Reduce.class);
 			job.setReducerClass(Reduce.class);
 			
 			
 			//设置输出类型
-			job.setOutputKeyClass(Text.class);
-			job.setOutputValueClass(Text.class);			
+			job.setOutputKeyClass(IntWritable.class);
+			job.setOutputValueClass(IntWritable.class);			
 			
 			Path inpath=new Path(HDFS_PATH+"/inputs");
 			Path outpath=new Path(HDFS_PATH+"/outputs/numbersort");
