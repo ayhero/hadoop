@@ -45,13 +45,13 @@ public class Dedup {
 		
 		try {
 			//数据准备
-			String HDFS_PATH="hdfs://192.168.1.98:9000";
-			/*
+			String HDFS_PATH="hdfs://192.168.0.21:9000";
+			
 			FileSystem fileSystem=FileSystem.get(new URI(HDFS_PATH), new Configuration());
-			if(!fileSystem.isDirectory(new Path("/inputs"))){
+			if(!fileSystem.exists(new Path("/inputs"))){
 				fileSystem.mkdirs(new Path("/inputs"));
 			}
-			if(fileSystem.isDirectory(new Path("/outputs"))){
+			if(fileSystem.exists(new Path("/outputs"))){
 				fileSystem.delete(new Path("/outputs"));
 			}
 			if(!fileSystem.isFile(new Path("/inputs/file1.txt"))){
@@ -61,7 +61,7 @@ public class Dedup {
 			if(!fileSystem.isFile(new Path("/inputs/file2.txt"))){
 				FileInputStream in=new FileInputStream("D:/file2.txt");
 				fileSystem.copyFromLocalFile(new Path("d:/file2.txt"), new Path("/inputs/file2.txt"));
-			}*/
+			}
 			//mapreduce计算			
 			Configuration conf=new Configuration();
 			//conf.set("fs.default.name", HDFS_PATH);
@@ -93,13 +93,13 @@ public class Dedup {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
