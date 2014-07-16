@@ -26,7 +26,11 @@ public class AvgScore {
 		
 		
 		public void map(LongWritable key,Text value,Context context) throws IOException, InterruptedException {
+			//获得行数据
 			String line=value.toString();
+			System.out.println("又一行");
+			System.out.println(value.toString());
+			//使用StringTokenizer以换行符为分隔拆分数据
 			StringTokenizer tokenizerArticle=new StringTokenizer(line,"\n");
 			while(tokenizerArticle.hasMoreElements()){
 				StringTokenizer tokenizerLine=new StringTokenizer(tokenizerArticle.nextToken());
