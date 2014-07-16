@@ -15,6 +15,8 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 
+import com.Utils;
+
 public class Dedup {
 
 	public static class Map extends Mapper<Object,Text,Text,Text>{
@@ -44,28 +46,12 @@ public class Dedup {
 		// TODO Auto-generated method stub
 		
 		try {
-			//hdfs主机地址
-			String HDFS_PATH="hdfs://192.168.0.21:9000";
+			String indir="file/dedup";
+			String outdir="file/outputfiles";
+			Utils.deleteDir(outdir);//删除输出目录
 			//数据准备
-			FileSystem fileSystem=FileSystem.get(new URI(HDFS_PATH), new Configuration());
-			if(!fileSystem.exists(new Path("/inputs"))){
-				fileSystem.mkdirs(new Path("/inputs"));
-			}
-			if(fileSystem.exists(new Path("/outputs/dedup"))){
-				fileSystem.delete(new Path("/outputs/dedup"));
-			}
-			if(!fileSystem.isFile(new Path("/inputs/file1.txt"))){
-				fileSystem.copyFromLocalFile(new Path("file/file1.txt"), new Path("/inputs/file1.txt"));
-			}
-			if(!fileSystem.isFile(new Path("/inputs/file2.txt"))){
-				fileSystem.copyFromLocalFile(new Path("file/file2.txt"), new Path("/inputs/file2.txt"));
-			}
 			//mapreduce计算			
 			Configuration conf=new Configuration();
-			//conf.set("fs.default.name", HDFS_PATH);
-			//conf.set("hadoop.job.user", "hadoop");
-			//conf.set("mapred.job.tracker", "192.168.1.98:9001");
-			//JobConf conf=new JobConf();
 			System.out.println("模式:"+conf.get("mapred.job.tracker"));
 			Job job=new Job(conf,"Data Deduplication");
 			job.setJarByClass(Dedup.class);
@@ -79,11 +65,9 @@ public class Dedup {
 			job.setOutputKeyClass(Text.class);
 			job.setOutputValueClass(Text.class);			
 			
-			Path inpath=new Path(HDFS_PATH+"/inputs");
-			Path outpath=new Path(HDFS_PATH+"/outputs/dedup");
 			
-			FileInputFormat.addInputPath(job, inpath);
-			FileOutputFormat.setOutputPath(job, outpath);
+			FileInputFormat.addInputPath(job, new Path(indir));
+			FileOutputFormat.setOutputPath(job, new Path(outdir));
 			
 			System.exit(job.waitForCompletion(true)?0:1);
 			
@@ -95,9 +79,6 @@ public class Dedup {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
