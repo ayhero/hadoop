@@ -1,5 +1,6 @@
 package com;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -8,7 +9,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
-public class Utils {
+public class HDFS_Utils {
 	public static FileSystem fileSystem=null;
 	
 	static {
@@ -21,6 +22,8 @@ public class Utils {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		
 	}
 	
 	/**
@@ -28,7 +31,6 @@ public class Utils {
 	 */
 	public static void createDir(String url){
 		try {
-			
 			if(!fileSystem.exists(new Path(url))){
 					fileSystem.mkdirs(new Path(url));
 			}
@@ -69,6 +71,16 @@ public class Utils {
 	 * @param dir
 	 */
 	public static void deleteLocalDir(String dir){
-		
+		File file=new File(dir);
+		if(file.exists()){
+			if(file.isFile()){
+				file.delete();
+			}else if(file.isDirectory()){
+				File[] files=file.listFiles();
+				for(int i=0;i<files.length;i++){
+					deleteLocalDir(files[i].getPath());
+				}
+			}
+		}
 	}
 }

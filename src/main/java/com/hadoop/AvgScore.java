@@ -17,8 +17,9 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 
+import com.Local_Utils;
 import com.Resources;
-import com.Utils;
+import com.HDFS_Utils;
 
 public class AvgScore {
 
@@ -68,13 +69,14 @@ public class AvgScore {
 		// TODO Auto-generated method stub
 		
 		try {
-			String indir="file/avgScore";
+			String file="avgScore";
+			String indir="file/"+file;
 			String outdir=indir+"/outputfiles";
-			//Utils.deleteDir(outdir);//删除输出目录
+			Local_Utils.deleteLocalDir(outdir);//删除输出目录
 			//mapreduce计算			
 			Configuration conf=new Configuration();
 			System.out.println("模式:"+conf.get("mapred.job.tracker"));
-			Job job=new Job(conf,"AvgScort");
+			Job job=new Job(conf,file);
 			job.setJarByClass(AvgScore.class);
 			//设置map,combine和reduce处理类
 			job.setMapperClass(Map.class);

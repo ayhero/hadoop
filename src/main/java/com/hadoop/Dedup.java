@@ -15,7 +15,8 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 
-import com.Utils;
+import com.HDFS_Utils;
+import com.Local_Utils;
 
 public class Dedup {
 
@@ -46,14 +47,14 @@ public class Dedup {
 		// TODO Auto-generated method stub
 		
 		try {
-			String indir="file/dedup";
-			String outdir="file/outputfiles";
-			Utils.deleteDir(outdir);//删除输出目录
-			//数据准备
+			String file="dedup";
+			String indir="file/"+file;
+			String outdir=indir+"/outputfiles";
+			Local_Utils.deleteLocalDir(outdir);//删除输出目录
 			//mapreduce计算			
 			Configuration conf=new Configuration();
 			System.out.println("模式:"+conf.get("mapred.job.tracker"));
-			Job job=new Job(conf,"Data Deduplication");
+			Job job=new Job(conf,file);
 			job.setJarByClass(Dedup.class);
 			//设置map,combine和reduce处理类
 			job.setMapperClass(Map.class);
